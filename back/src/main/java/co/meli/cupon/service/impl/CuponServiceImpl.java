@@ -14,10 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static co.meli.cupon.util.ApplicationConstants.*;
@@ -123,5 +120,36 @@ public class CuponServiceImpl implements CuponService {
     return favoritosTopList.stream()
         .map(favorito -> modelMapper.map(favorito, FavoritosResponseDTO.class))
         .collect(Collectors.toList());
+  }
+
+  @Override
+  @Transactional(readOnly = false)
+  public void guardarFavoritos(List<String> item_ids) {
+
+    List<CuponCompra> cuponCompraList = cuponRepository.findByItemIdIn(item_ids);
+
+    List<String> itemsExistentesList =
+        cuponCompraList.stream().map(CuponCompra::getItemId).collect(Collectors.toList());
+
+    for (String itemId : item_ids) {
+      if (itemsExistentesList.contains(itemId)) {
+        Optional<CuponCompra> optCupon =
+            cuponCompraList.stream()
+                .filter(e -> e.getItemId().equalsIgnoreCase(itemId))
+                .findFirst();
+        if (optCupon.isPresent()) {
+          CuponCompra cuponCompra = optCupon.get();
+          cuponCompra.setCantidadSolicitudesCompra(cuponCompra.getCantidadSolicitudesCompra() + 1);
+        }
+      } else {
+        CuponCompra cuponCompra = new CuponCompra();
+        cuponCompra.setItemId(itemId);
+        cuponCompra.setCantidadSolicitudesCompra(1L);
+        cuponCompraList.add(cuponCompra);
+        itemsExistentesList.add(itemId);
+      }
+    }
+
+    cuponRepository.saveAll(cuponCompraList);
   }
 }

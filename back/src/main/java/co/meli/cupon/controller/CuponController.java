@@ -34,6 +34,8 @@ public class CuponController {
 
     CuponResponseDTO responseDTO = cuponService.usarCupon(cuponRequestDTO);
 
+    cuponService.guardarFavoritos(cuponRequestDTO.getItem_ids());
+
     return new ResponseEntity<>(responseDTO, HttpStatus.OK);
   }
 

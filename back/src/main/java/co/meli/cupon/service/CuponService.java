@@ -11,4 +11,6 @@ public interface CuponService {
   CuponResponseDTO usarCupon(CuponRequestDTO cuponRequestDTO);
 
   List<FavoritosResponseDTO> obtenerFavoritos();
+
+  void guardarFavoritos(List<String> item_ids);
 }
