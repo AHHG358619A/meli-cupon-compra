@@ -1,11 +1,12 @@
 package co.meli.cupon.service.impl;
 
-import co.meli.cupon.dto.CuponRequestDTO;
-import co.meli.cupon.dto.CuponResponseDTO;
-import co.meli.cupon.dto.FavoritosResponseDTO;
-import co.meli.cupon.dto.ItemDTO;
+import co.meli.cupon.dto.*;
+import co.meli.cupon.entity.CuponCompra;
+import co.meli.cupon.repository.CuponRepository;
 import co.meli.cupon.service.CuponService;
 import co.meli.cupon.util.CamposAtributosEnum;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +26,8 @@ import static co.meli.cupon.util.ApplicationConstants.*;
 @Service("CuponService")
 @Lazy
 public class CuponServiceImpl implements CuponService {
+
+  @Autowired CuponRepository cuponRepository;
 
   @Value("${meli.url.servicio.items}")
   private String urlServicioItems;
@@ -111,32 +114,14 @@ public class CuponServiceImpl implements CuponService {
 
   @Override
   public List<FavoritosResponseDTO> obtenerFavoritos() {
-    List<FavoritosResponseDTO> favoritosList = new ArrayList<>();
-    FavoritosResponseDTO dto = new FavoritosResponseDTO();
-    dto.setItemId("MLA1");
-    dto.setCantidadSolicitudesCompra(100L);
-    favoritosList.add(dto);
 
-    dto = new FavoritosResponseDTO();
-    dto.setItemId("MLA2");
-    dto.setCantidadSolicitudesCompra(89L);
-    favoritosList.add(dto);
+    List<CuponCompra> favoritosTopList =
+        cuponRepository.findTop5ByOrderByCantidadSolicitudesCompraDesc();
 
-    dto = new FavoritosResponseDTO();
-    dto.setItemId("MLA3");
-    dto.setCantidadSolicitudesCompra(55L);
-    favoritosList.add(dto);
+    ModelMapper modelMapper = new ModelMapper();
 
-    dto = new FavoritosResponseDTO();
-    dto.setItemId("MLA4");
-    dto.setCantidadSolicitudesCompra(39L);
-    favoritosList.add(dto);
-
-    dto = new FavoritosResponseDTO();
-    dto.setItemId("MLA5");
-    dto.setCantidadSolicitudesCompra(10L);
-    favoritosList.add(dto);
-
-    return favoritosList;
+    return favoritosTopList.stream()
+        .map(favorito -> modelMapper.map(favorito, FavoritosResponseDTO.class))
+        .collect(Collectors.toList());
   }
 }
