@@ -7,4 +7,6 @@ public class ApplicationConstants {
   public static final String PATH_ITEMS_ID = "?ids=";
 
   public static final String PATH_ATRIBUTOS = "&attributes=";
+
+  public static final int STATUS_OK = 200;
 }
