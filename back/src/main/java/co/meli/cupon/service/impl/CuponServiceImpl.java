@@ -2,6 +2,7 @@ package co.meli.cupon.service.impl;
 
 import co.meli.cupon.dto.CuponRequestDTO;
 import co.meli.cupon.dto.CuponResponseDTO;
+import co.meli.cupon.dto.FavoritosResponseDTO;
 import co.meli.cupon.dto.ItemDTO;
 import co.meli.cupon.service.CuponService;
 import co.meli.cupon.util.CamposAtributosEnum;
@@ -106,5 +107,36 @@ public class CuponServiceImpl implements CuponService {
     }
 
     return listadoItems;
+  }
+
+  @Override
+  public List<FavoritosResponseDTO> obtenerFavoritos() {
+    List<FavoritosResponseDTO> favoritosList = new ArrayList<>();
+    FavoritosResponseDTO dto = new FavoritosResponseDTO();
+    dto.setItemId("MLA1");
+    dto.setCantidadSolicitudesCompra(100L);
+    favoritosList.add(dto);
+
+    dto = new FavoritosResponseDTO();
+    dto.setItemId("MLA2");
+    dto.setCantidadSolicitudesCompra(89L);
+    favoritosList.add(dto);
+
+    dto = new FavoritosResponseDTO();
+    dto.setItemId("MLA3");
+    dto.setCantidadSolicitudesCompra(55L);
+    favoritosList.add(dto);
+
+    dto = new FavoritosResponseDTO();
+    dto.setItemId("MLA4");
+    dto.setCantidadSolicitudesCompra(39L);
+    favoritosList.add(dto);
+
+    dto = new FavoritosResponseDTO();
+    dto.setItemId("MLA5");
+    dto.setCantidadSolicitudesCompra(10L);
+    favoritosList.add(dto);
+
+    return favoritosList;
   }
 }

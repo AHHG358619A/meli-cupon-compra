@@ -2,6 +2,7 @@ package co.meli.cupon.controller;
 
 import co.meli.cupon.dto.CuponRequestDTO;
 import co.meli.cupon.dto.CuponResponseDTO;
+import co.meli.cupon.dto.FavoritosResponseDTO;
 import co.meli.cupon.service.CuponService;
 import co.meli.cupon.util.ApplicationConstants;
 import io.swagger.annotations.ApiParam;
@@ -11,6 +12,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.annotations.ApiOperation;
+
+import java.util.List;
 
 @RestController
 @RequestMapping(ApplicationConstants.API_VERSION + "/coupon")
@@ -32,5 +35,18 @@ public class CuponController {
     CuponResponseDTO responseDTO = cuponService.usarCupon(cuponRequestDTO);
 
     return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+  }
+
+  @GetMapping(
+          value = "/favorites",
+          produces = {MediaType.APPLICATION_JSON_VALUE})
+  @ApiOperation(value = "obtenerFavoritos", notes = "Obtener el top 5 de items usados en los cupones.")
+  @ResponseStatus(value = HttpStatus.OK)
+  @ResponseBody
+  public ResponseEntity<List<FavoritosResponseDTO>> obtenerFavoritos() {
+
+    List<FavoritosResponseDTO> responseListDTO = cuponService.obtenerFavoritos();
+
+    return new ResponseEntity<>(responseListDTO, HttpStatus.OK);
   }
 }
