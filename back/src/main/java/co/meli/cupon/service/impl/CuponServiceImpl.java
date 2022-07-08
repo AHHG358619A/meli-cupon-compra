@@ -33,16 +33,7 @@ public class CuponServiceImpl implements CuponService {
   public CuponResponseDTO usarCupon(CuponRequestDTO cuponRequestDTO) {
     List<String> listadoItemsSinRepetir = eliminarItemsDuplicados(cuponRequestDTO.getItem_ids());
     List<ItemDTO> listadoItems = consultarPrecioItems(listadoItemsSinRepetir);
-    CuponResponseDTO responseDTO = new CuponResponseDTO();
-    List<String> itemsSeleccionados = new ArrayList<>();
-    itemsSeleccionados.add("MLA1");
-    itemsSeleccionados.add("MLA2");
-    itemsSeleccionados.add("MLA4");
-    itemsSeleccionados.add("MLA5");
-
-    responseDTO.setItem_ids(itemsSeleccionados);
-    responseDTO.setTotal(480);
-    return responseDTO;
+    return obtenerItemsCompra(listadoItems, cuponRequestDTO.getAmount());
   }
 
   private List<String> eliminarItemsDuplicados(List<String> item_ids) {
@@ -151,5 +142,61 @@ public class CuponServiceImpl implements CuponService {
     }
 
     cuponRepository.saveAll(cuponCompraList);
+  }
+
+  private CuponResponseDTO obtenerItemsCompra(List<ItemDTO> listadoItems, double amount) {
+    List<Integer> pesos = new ArrayList<>();
+    List<Integer> valores = new ArrayList<>();
+    pesos.add(0);
+    valores.add(0);
+
+    for (ItemDTO itemDTO : listadoItems) {
+      pesos.add((int) Math.ceil(itemDTO.getBody().getPrice()));
+      valores.add((int) Math.ceil(itemDTO.getBody().getPrice()));
+    }
+
+    int pesoMaximo = (int) amount;
+
+    System.out.println("peso maximo " + pesoMaximo);
+    int[][] values = new int[pesos.size()][pesoMaximo + 1];
+
+    for (int i = 1; i < pesos.size(); i++) {
+      for (int j = 1; j <= pesoMaximo; j++) {
+        if (i == 1) {
+          if (j >= pesos.get(i)) {
+            values[i][j] = valores.get(i);
+          }
+        } else if (j < pesos.get(i)) {
+          values[i][j] = values[i - 1][j];
+        } else {
+          values[i][j] =
+              Math.max(values[i - 1][j], valores.get(i) + values[i - 1][j - pesos.get(i)]);
+        }
+      }
+    }
+
+    List<ItemDTO> itemDTOseleccionados = new ArrayList<>();
+
+    int j = pesoMaximo;
+    for (int i = pesos.size() - 1; i > 0; i--) {
+      if (values[i][j] != values[i - 1][j]
+          && values[i][j] == values[i - 1][j - pesos.get(i)] + valores.get(i)) {
+        itemDTOseleccionados.add(listadoItems.get(i - 1));
+        j -= pesos.get(i);
+      }
+    }
+
+    CuponResponseDTO responseDTO = new CuponResponseDTO();
+    List<String> itemsSeleccionados = new ArrayList<>();
+    double sumaTotal = 0;
+    for (ItemDTO dto : itemDTOseleccionados) {
+      itemsSeleccionados.add(dto.getBody().getId());
+      sumaTotal += dto.getBody().getPrice();
+    }
+
+    responseDTO.setItem_ids(itemsSeleccionados);
+    responseDTO.setTotal(sumaTotal);
+
+    return responseDTO;
   }
 }
