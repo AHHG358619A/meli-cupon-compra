@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 import io.swagger.annotations.ApiOperation;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping(ApplicationConstants.API_VERSION + "/coupon")
@@ -27,11 +26,10 @@ public class CuponController extends BaseController {
   @PostMapping(
       value = "",
       produces = {MediaType.APPLICATION_JSON_VALUE})
-  @ApiOperation(value = "cambiarCupon", notes = "Cambiar valor cupón por ítems favoritos.")
+  @ApiOperation(value = "Cambiar cupon", notes = "Cambiar valor del cupón por ítems favoritos.")
   @ResponseStatus(value = HttpStatus.OK)
   @ResponseBody
   public ResponseEntity<CuponResponseDTO> cambiarCupon(
-      @RequestHeader(value = "User-Agent") String userAgent,
       @ApiParam(value = "Parámetros para cambiar cupón", required = false) @RequestBody
           final CuponRequestDTO cuponRequestDTO) {
 
@@ -46,14 +44,32 @@ public class CuponController extends BaseController {
       value = "",
       produces = {MediaType.APPLICATION_JSON_VALUE})
   @ApiOperation(
-      value = "obtenerFavoritos",
+      value = "Obtener favoritos",
       notes = "Obtener listado de favoritos según parametros recibidos.")
   @ResponseStatus(value = HttpStatus.OK)
   @ResponseBody
   public ResponseEntity<List<FavoritosResponseDTO>> obtenerFavoritos(
-      @RequestParam Map<String, String> allParams) {
+      @ApiParam(
+              value = "Página a recuperar según la cantidad de registros a mostrar",
+              example = "0")
+          @RequestParam(required = false, name = "page")
+          String page,
+      @ApiParam(value = "Cantidad de registros a mostrar", example = "5")
+          @RequestParam(required = false, name = "rows")
+          String rows,
+      @ApiParam(
+              value = "Columna por la que se ordenaran los registros",
+              example = "cantidadSolicitudesCompra")
+          @RequestParam(required = false, name = "field")
+          String field,
+      @ApiParam(
+              value = "Dirección de ordenamiento de los registros",
+              allowableValues = "asc, desc",
+              example = "desc")
+          @RequestParam(required = false, name = "direction")
+          String direction) {
 
-    Pageable pageable = parsePageParams(allParams);
+    Pageable pageable = parsePageParams(page, rows, field, direction);
 
     List<FavoritosResponseDTO> responseListDTO = cuponService.obtenerFavoritos(pageable);
 
