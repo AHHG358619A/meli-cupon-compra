@@ -10,6 +10,4 @@ import java.util.List;
 public interface CuponRepository extends JpaRepository<CuponCompra, Long> {
 
   List<CuponCompra> findByItemIdIn(List<String> itemIds);
-
-  List<CuponCompra> findTop5ByOrderByCantidadSolicitudesCompraDesc();
 }

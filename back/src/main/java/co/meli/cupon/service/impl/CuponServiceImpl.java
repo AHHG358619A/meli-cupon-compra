@@ -5,10 +5,11 @@ import co.meli.cupon.entity.CuponCompra;
 import co.meli.cupon.repository.CuponRepository;
 import co.meli.cupon.service.CuponService;
 import co.meli.cupon.util.CamposAtributosEnum;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -101,15 +102,15 @@ public class CuponServiceImpl implements CuponService {
   }
 
   @Override
-  public List<FavoritosResponseDTO> obtenerFavoritos() {
+  public List<FavoritosResponseDTO> obtenerFavoritos(Pageable pageable) {
 
-    List<CuponCompra> favoritosTopList =
-        cuponRepository.findTop5ByOrderByCantidadSolicitudesCompraDesc();
-
-    ModelMapper modelMapper = new ModelMapper();
+    Page<CuponCompra> favoritosTopList = cuponRepository.findAll(pageable);
 
     return favoritosTopList.stream()
-        .map(favorito -> modelMapper.map(favorito, FavoritosResponseDTO.class))
+        .map(
+            favorito ->
+                new FavoritosResponseDTO(
+                    favorito.getItemId(), favorito.getCantidadSolicitudesCompra()))
         .collect(Collectors.toList());
   }
 
